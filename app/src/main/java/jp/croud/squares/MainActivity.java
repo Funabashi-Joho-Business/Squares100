@@ -1,7 +1,10 @@
 package jp.croud.squares;
 
-import android.support.v7.app.AppCompatActivity;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
 
@@ -16,6 +19,10 @@ public class MainActivity extends AppCompatActivity implements InputFragment.OnN
 	long mStartCount;
 	long mStopCount;
 	boolean mActive;
+
+	private SoundPool mSoundPool;
+	private int mSound1;
+	private int mSound2;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -33,21 +40,40 @@ public class MainActivity extends AppCompatActivity implements InputFragment.OnN
 	protected void onPause() {
 		super.onPause();
 		stop();
+		mSoundPool.release();
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
+
+		AudioAttributes attr = new AudioAttributes.Builder()
+			                       .setUsage(AudioAttributes.USAGE_MEDIA)
+			                       .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+			                       .build();
+		mSoundPool = new SoundPool.Builder()
+			             .setAudioAttributes(attr)
+			             .setMaxStreams(5)
+			             .build();
+
+		mSoundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
+		mSound1 = mSoundPool.load(this, R.raw.sound1, 0);
+		mSound2 = mSoundPool.load(this, R.raw.sound2, 0);
+
 		if(mActive)
-			start(false);
+			start(0,0,false);
 	}
 
 	@Override
 	public void onNumberClick(int value) {
 		if(!mActive)
 			return;
-		mSquares.sendNumber(value);
-		if(mSquares.getAnserCount() == 100)
+		if(mSquares.sendNumber(value))
+			mSoundPool.play(mSound1, 1.0F, 1.0F, 0, 0, 1.0F);
+		else
+			mSoundPool.play(mSound2, 1.0F, 1.0F, 0, 0, 1.0F);
+
+		if(mSquares.getAnswerCount() == 100)
 		{
 			mActive = false;
 			stop();
@@ -56,13 +82,22 @@ public class MainActivity extends AppCompatActivity implements InputFragment.OnN
 
 	@Override
 	public void onClick(View v) {
-		start(true);
+		//start(true);
+		final ModeFragment dialog = new ModeFragment();
+		dialog.setOnModeStartListener(new ModeFragment.OnModeStartListener() {
+			@Override
+			public void onModeStart(int x, int y) {
+				start(x,y,true);
+			}
+		});
+		dialog.show(getSupportFragmentManager(),null);
+
 	}
 
-	void start(boolean reset){
+	void start(int x,int y,boolean reset){
 		mActive = true;
 		if(reset){
-			mSquares.reset();
+			mSquares.reset(x,y);
 			mStartCount = System.currentTimeMillis();
 		}else
 			mStartCount = System.currentTimeMillis()-mStopCount;

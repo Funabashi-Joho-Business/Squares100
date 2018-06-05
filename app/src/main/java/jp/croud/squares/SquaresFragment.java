@@ -1,9 +1,6 @@
 package jp.croud.squares;
 
 
-import android.media.AudioAttributes;
-import android.media.AudioManager;
-import android.media.SoundPool;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -13,6 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.LinearLayout;
+import android.widget.Space;
 import android.widget.TextView;
 
 import java.util.Random;
@@ -29,9 +28,7 @@ public class SquaresFragment extends Fragment {
 	int[] mNumberY = new int[10];
 	int mIndex;
 	private Animation mAnimation;
-	private SoundPool mSoundPool;
-	private int mSound1;
-	private int mSound2;
+
 
 	public SquaresFragment() {
 		// Required empty public constructor
@@ -49,35 +46,39 @@ public class SquaresFragment extends Fragment {
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		mAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.fade_in);
+
+		int countX = 11;
+		int countY = 11;
+		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT,1);
+		LinearLayout parent = (LinearLayout)view;
+		for(int y=0;y<countY;y++){
+			LinearLayout layout = new LinearLayout(getContext());
+			for(int x=0;x<countX;x++){
+				if(x == 0 && y == 0)
+					layout.addView(new Space(getContext()), new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT,1));
+				else if(x==0 || y==0)
+					getLayoutInflater().inflate(R.layout.frame_header,layout,true);
+				else
+					getLayoutInflater().inflate(R.layout.frame_item,layout,true);
+			}
+			parent.addView(layout,params);
+
+		}
+		//getLayoutInflater().inflate(R.layout.fragment_squares,)
 		//reset();
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
-
-		AudioAttributes attr = new AudioAttributes.Builder()
-			                       .setUsage(AudioAttributes.USAGE_MEDIA)
-			                       .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-			                       .build();
-
-		mSoundPool = new SoundPool.Builder()
-			                 .setAudioAttributes(attr)
-			                 .setMaxStreams(5)
-			                 .build();
-
-		mSoundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
-		mSound1 = mSoundPool.load(getContext(), R.raw.sound1, 0);
-		mSound2 = mSoundPool.load(getContext(), R.raw.sound2, 0);
 	}
 
 	@Override
 	public void onPause() {
-		mSoundPool.release();
 		super.onPause();
 	}
 
-	public void reset(){
+	public void reset(int x,int y){
 		Random rand = new Random();
 		for(int i=0;i<10;i++){
 			int a = rand.nextInt(10);
@@ -132,15 +133,12 @@ public class SquaresFragment extends Fragment {
 			setSquaresColor(mIndex,mHeaderColor1);
 			mIndex++;
 			setSquaresColor(mIndex,mHeaderColor2);
-			mSoundPool.play(mSound1, 1.0F, 1.0F, 0, 0, 1.0F);
 			return true;
 		}
 		setSquaresText(x+1,y+1,"×");
-		mSoundPool.play(mSound2, 1.0F, 1.0F, 0, 0, 1.0F);
-
 		return false;
 	}
-	public int getAnserCount(){
+	public int getAnswerCount(){
 		return mIndex;
 	}
 }
