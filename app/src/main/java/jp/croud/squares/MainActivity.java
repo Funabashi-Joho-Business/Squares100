@@ -1,7 +1,6 @@
 package jp.croud.squares;
 
 import android.media.AudioAttributes;
-import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -46,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements InputFragment.OnN
 	@Override
 	protected void onResume() {
 		super.onResume();
-
+		//サウンドリソースの読み込み
 		AudioAttributes attr = new AudioAttributes.Builder()
 			                       .setUsage(AudioAttributes.USAGE_MEDIA)
 			                       .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
@@ -56,24 +55,25 @@ public class MainActivity extends AppCompatActivity implements InputFragment.OnN
 			             .setMaxStreams(5)
 			             .build();
 
-		mSoundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
 		mSound1 = mSoundPool.load(this, R.raw.sound1, 0);
 		mSound2 = mSoundPool.load(this, R.raw.sound2, 0);
-
+		//ゲーム進行中なら再開
 		if(mActive)
 			start(0,0,false);
 	}
 
 	@Override
 	public void onNumberClick(int value) {
-		if(!mActive)
+		if(!mActive)    //ゲーム進行中か？
 			return;
+		//タップされたナンバーを出力し、結果を受け取る
 		if(mSquares.sendNumber(value))
-			mSoundPool.play(mSound1, 1.0F, 1.0F, 0, 0, 1.0F);
+			mSoundPool.play(mSound1, 1.0F, 1.0F, 0, 0, 1.0F);   //成功音
 		else
-			mSoundPool.play(mSound2, 1.0F, 1.0F, 0, 0, 1.0F);
+			mSoundPool.play(mSound2, 1.0F, 1.0F, 0, 0, 1.0F);   //失敗音
 
-		if(mSquares.getAnswerCount() == 100)
+		//全問を解答したら終了
+		if(mSquares.getAnswerCount() == mSquares.getAllCount())
 		{
 			mActive = false;
 			stop();
@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements InputFragment.OnN
 
 	@Override
 	public void onClick(View v) {
-		//start(true);
+		//スタートを押したら、モードセレクト用のダイアログを表示
 		final ModeFragment dialog = new ModeFragment();
 		dialog.setOnModeStartListener(new ModeFragment.OnModeStartListener() {
 			@Override
@@ -95,14 +95,18 @@ public class MainActivity extends AppCompatActivity implements InputFragment.OnN
 	}
 
 	void start(int x,int y,boolean reset){
-		mActive = true;
+		mActive = true; //ゲーム進行中フラグを立てる
+		//再開かリセットか確認
 		if(reset){
-			mSquares.reset(x,y);
+			mSquares.reset(x,y);  //内容をリセット
 			mStartCount = System.currentTimeMillis();
-		}else
+		}else //再開なら時間を調整する
 			mStartCount = System.currentTimeMillis()-mStopCount;
+
+		//すでにタイマーが動いていたら停止
 		if(mTimer != null)
 			mTimer.cancel();
+		//タイマー処理を開始
 		TimerTask task = new TimerTask() {
 			@Override
 			public void run() {
@@ -113,12 +117,15 @@ public class MainActivity extends AppCompatActivity implements InputFragment.OnN
 		mTimer.schedule(task,0,100);
 	}
 	void stop(){
+		//タイマーの停止処理
 		if(mTimer != null){
 			mTimer.cancel();
 			mTimer = null;
 		}
+		//再開に備えて経過時間を記憶
 		mStopCount = System.currentTimeMillis() - mStartCount;
 	}
+
 	Runnable mTimerRun = new Runnable(){
 		@Override
 		public void run() {

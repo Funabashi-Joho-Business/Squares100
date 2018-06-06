@@ -11,6 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.NumberPicker;
 
+import jp.croud.squares.db.AppDB;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -43,10 +45,14 @@ public class ModeFragment extends DialogFragment implements View.OnClickListener
 		NumberPicker numY = view.findViewById(R.id.numY);
 		numX.setMinValue(1);
 		numX.setMaxValue(10);
-		numX.setValue(10);
 		numY.setMinValue(1);
 		numY.setMaxValue(10);
-		numY.setValue(10);
+
+
+		AppDB db = new AppDB(getContext());
+		numX.setValue(db.getSetting("SizeX",10));
+		numY.setValue(db.getSetting("SizeY",10));
+		db.close();
 
 		view.findViewById(R.id.buttonStart).setOnClickListener(this);
 	}
@@ -56,7 +62,15 @@ public class ModeFragment extends DialogFragment implements View.OnClickListener
 		if(mListener != null) {
 			NumberPicker numX = getView().findViewById(R.id.numX);
 			NumberPicker numY = getView().findViewById(R.id.numY);
-			mListener.onModeStart(numX.getValue(),numY.getValue());
+			int x = numX.getValue();
+			int y = numY.getValue();
+			mListener.onModeStart(x,y);
+
+			AppDB db = new AppDB(getContext());
+			db.setSetting("SizeX",x);
+			db.setSetting("SizeY",y);
+			db.close();
+
 			getDialog().cancel();
 		}
 	}

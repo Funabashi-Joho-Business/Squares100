@@ -21,9 +21,8 @@ import java.util.Random;
  * A simple {@link Fragment} subclass.
  */
 public class SquaresFragment extends Fragment {
-	int mHeaderColor1 = 0xffffaa44;
-	int mHeaderColor2 = 0xffdd8833;
-
+	int mSizeX = 10;
+	int mSizeY = 10;
 	int[] mNumberX = new int[10];
 	int[] mNumberY = new int[10];
 	int mIndex;
@@ -47,25 +46,8 @@ public class SquaresFragment extends Fragment {
 		super.onViewCreated(view, savedInstanceState);
 		mAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.fade_in);
 
-		int countX = 11;
-		int countY = 11;
-		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT,1);
-		LinearLayout parent = (LinearLayout)view;
-		for(int y=0;y<countY;y++){
-			LinearLayout layout = new LinearLayout(getContext());
-			for(int x=0;x<countX;x++){
-				if(x == 0 && y == 0)
-					layout.addView(new Space(getContext()), new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT,1));
-				else if(x==0 || y==0)
-					getLayoutInflater().inflate(R.layout.frame_header,layout,true);
-				else
-					getLayoutInflater().inflate(R.layout.frame_item,layout,true);
-			}
-			parent.addView(layout,params);
-
-		}
 		//getLayoutInflater().inflate(R.layout.fragment_squares,)
-		//reset();
+		reset(10,10);
 	}
 
 	@Override
@@ -79,25 +61,47 @@ public class SquaresFragment extends Fragment {
 	}
 
 	public void reset(int x,int y){
-		Random rand = new Random();
-		for(int i=0;i<10;i++){
-			int a = rand.nextInt(10);
-			int b = rand.nextInt(10);
-			setSquaresText(i+1,0,String.valueOf(a));
-			setSquaresColor(i+1,0,mHeaderColor1);
-
-			setSquaresText(0,i+1,String.valueOf(b));
-			setSquaresColor(0,i+1,mHeaderColor1);
-
-			mNumberX[i] = a;
-			mNumberY[i] = b;
+		//マス目の作成
+		int countX = x+1;
+		int countY = y+1;
+		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,0,1);
+		LinearLayout parent = (LinearLayout)getView();
+		parent.removeAllViews();
+		for(int j=0;j<countY;j++){
+			LinearLayout layout = new LinearLayout(getContext());
+			for(int i=0;i<countX;i++){
+				if(i == 0 && j == 0)
+					layout.addView(new Space(getContext()), new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT,1));
+				else
+					getLayoutInflater().inflate(R.layout.frame_item,layout,true);
+			}
+			parent.addView(layout,params);
 		}
-		for(int j=0;j<10;j++){
-			for(int i=0;i<10;i++)
-				setSquaresText(j+1,i+1,"");
+		//データの配置
+		mSizeX = x;
+		mSizeY = y;
+		Random rand = new Random();
+		for(int i=0;i<x;i++){
+			int value = rand.nextInt(10);
+			setSquaresText(i+1,0,String.valueOf(value));
+			setSquaresColor(i+1,0,R.drawable.ic_header1);
+			mNumberX[i] = value;
+		}
+		for(int i=0;i<y;i++){
+			int value = rand.nextInt(10);
+			setSquaresText(0,i+1,String.valueOf(value));
+			setSquaresColor(0,i+1,R.drawable.ic_header1);
+			mNumberY[i] = value;
+		}
+		for(int j=0;j<y;j++){
+			for(int i=0;i<x;i++) {
+				setSquaresText(i+1,j + 1,  "");
+				setSquaresColor(i + 1,j + 1,  R.drawable.ic_item1);
+			}
 		}
 		mIndex = 0;
-		setSquaresColor(0,mHeaderColor2);
+		setSquaresColor(0,R.drawable.ic_header2);
+		setSquaresColor2(0,R.drawable.ic_item2);
 	}
 	void setSquaresText(int x,int y,String value){
 		ViewGroup view = (ViewGroup)getView();
@@ -107,32 +111,40 @@ public class SquaresFragment extends Fragment {
 		textView.setText(value);
 		textView.startAnimation(mAnimation);
 	}
-	void setSquaresColor(int x,int y,int color){
+	void setSquaresColor(int x,int y,int id){
 		ViewGroup view = (ViewGroup)getView();
 		ViewGroup line = (ViewGroup) view.getChildAt(y);
 		ViewGroup frame = (ViewGroup) line.getChildAt(x);
-		TextView textView = (TextView) frame.getChildAt(0);
-		textView.setBackgroundColor(color);
+		frame.setBackgroundResource(id);
 	}
-	public void setSquaresColor(int index,int color){
-		if(mIndex >= 100)
+	public void setSquaresColor(int index,int id){
+		if(mIndex >= mSizeX*mSizeY)
 			return;
-		int x = mIndex % 10;
-		int y = mIndex / 10;
-		setSquaresColor(0,y+1,color);
-		setSquaresColor(x+1,0,color);
+		int x = mIndex % mSizeX;
+		int y = mIndex / mSizeX;
+		setSquaresColor(0,y+1,id);
+		setSquaresColor(x+1,0,id);
+	}
+	public void setSquaresColor2(int index,int id){
+		if(mIndex >= mSizeX*mSizeY)
+			return;
+		int x = mIndex % mSizeX;
+		int y = mIndex / mSizeX;
+		setSquaresColor(x+1,y+1,id);
 	}
 	public boolean sendNumber(int number){
-		if(mIndex >= 100)
+		if(mIndex >= mSizeX*mSizeY)
 			return false;
-		int x = mIndex % 10;
-		int y = mIndex / 10;
+		int x = mIndex % mSizeX;
+		int y = mIndex / mSizeX;
 		int value = (mNumberX[x]+mNumberY[y])%10;
 		if(value == number){
 			setSquaresText(x+1,y+1,String.valueOf(value));
-			setSquaresColor(mIndex,mHeaderColor1);
+			setSquaresColor(mIndex,R.drawable.ic_header1);
+			setSquaresColor2(mIndex,R.drawable.ic_item1);
 			mIndex++;
-			setSquaresColor(mIndex,mHeaderColor2);
+			setSquaresColor(mIndex,R.drawable.ic_header2);
+			setSquaresColor2(mIndex,R.drawable.ic_item2);
 			return true;
 		}
 		setSquaresText(x+1,y+1,"×");
@@ -140,5 +152,8 @@ public class SquaresFragment extends Fragment {
 	}
 	public int getAnswerCount(){
 		return mIndex;
+	}
+	public int getAllCount(){
+		return mSizeX * mSizeY;
 	}
 }
