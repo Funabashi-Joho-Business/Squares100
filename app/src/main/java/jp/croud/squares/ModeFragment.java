@@ -18,6 +18,8 @@ import jp.croud.squares.db.AppDB;
  * A simple {@link Fragment} subclass.
  */
 public class ModeFragment extends DialogFragment implements View.OnClickListener {
+	final static int MAX_SIZE = 10;
+
 	interface OnModeStartListener{
 		void onModeStart(int x,int y);
 	}
@@ -44,14 +46,14 @@ public class ModeFragment extends DialogFragment implements View.OnClickListener
 		NumberPicker numX = view.findViewById(R.id.numX);
 		NumberPicker numY = view.findViewById(R.id.numY);
 		numX.setMinValue(1);
-		numX.setMaxValue(10);
+		numX.setMaxValue(MAX_SIZE);
 		numY.setMinValue(1);
-		numY.setMaxValue(10);
+		numY.setMaxValue(MAX_SIZE);
 
 
 		AppDB db = new AppDB(getContext());
-		numX.setValue(db.getSetting("SizeX",10));
-		numY.setValue(db.getSetting("SizeY",10));
+		numX.setValue(db.getSetting("SizeX",MAX_SIZE));
+		numY.setValue(db.getSetting("SizeY",MAX_SIZE));
 		db.close();
 
 		view.findViewById(R.id.buttonStart).setOnClickListener(this);

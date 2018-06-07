@@ -27,19 +27,22 @@ public class MainActivity extends AppCompatActivity implements InputFragment.OnN
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
+		//フラグメントの取得とコールバック設定
 		mInput = (InputFragment) getSupportFragmentManager().findFragmentById(R.id.fragmentInput);
 		mInput.setOnNumberClickListener(this);
 		mSquares = (SquaresFragment)getSupportFragmentManager().findFragmentById(R.id.fragmentSquares);
 
+		//スタートボタンのコールバック設定
 		findViewById(R.id.button).setOnClickListener(this);
+		//カウント用テキストビューのインスタンスを取得
 		mTextView = findViewById(R.id.textTime);
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
-		stop();
-		mSoundPool.release();
+		stop();                 //ゲームの停止
+		mSoundPool.release();   //サウンドの解放
 	}
 
 	@Override
@@ -129,6 +132,7 @@ public class MainActivity extends AppCompatActivity implements InputFragment.OnN
 	Runnable mTimerRun = new Runnable(){
 		@Override
 		public void run() {
+			//タイマーの表示
 			long t = System.currentTimeMillis() - mStartCount;
 			mTextView.setText(String.format("%.1f",t/1000.0));
 		}
