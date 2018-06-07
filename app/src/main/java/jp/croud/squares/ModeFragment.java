@@ -18,7 +18,7 @@ import jp.croud.squares.db.AppDB;
  * A simple {@link Fragment} subclass.
  */
 public class ModeFragment extends DialogFragment implements View.OnClickListener {
-	final static int MAX_SIZE = 10;
+	final static int MAX_SIZE = 1;
 
 	interface OnModeStartListener{
 		void onModeStart(int x,int y);

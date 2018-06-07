@@ -41,7 +41,7 @@ public class InputFragment extends Fragment implements View.OnClickListener {
 		super.onViewCreated(view, savedInstanceState);
 
 		//キー配置リスト
-		final int[] num = {7, 8, 9, 4, 5, 6, 1, 2, 3, 0, 0, 0};
+		final int[] num = {1,1,1,1,1,1,1,1,1,1,1,1};
 		//キー設定
 		for(int i=0;i<num.length;i++){
 			ViewGroup parent = (ViewGroup)((ViewGroup)view).getChildAt(i/3);

@@ -47,7 +47,7 @@ public class SquaresFragment extends Fragment {
 		mAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.fade_in);
 
 		//getLayoutInflater().inflate(R.layout.fragment_squares,)
-		reset(10,10);
+		reset(1,1);
 	}
 
 	@Override

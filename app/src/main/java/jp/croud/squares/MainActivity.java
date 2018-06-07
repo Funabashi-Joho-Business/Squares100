@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements InputFragment.OnN
 		mSound2 = mSoundPool.load(this, R.raw.sound2, 0);
 		//ゲーム進行中なら再開
 		if(mActive)
-			start(0,0,false);
+			start();
 	}
 
 	@Override
@@ -70,10 +70,11 @@ public class MainActivity extends AppCompatActivity implements InputFragment.OnN
 		if(!mActive)    //ゲーム進行中か？
 			return;
 		//タップされたナンバーを出力し、結果を受け取る
-		if(mSquares.sendNumber(value))
-			mSoundPool.play(mSound1, 1.0F, 1.0F, 0, 0, 1.0F);   //成功音
+		boolean flag = mSquares.sendNumber(value);
+		if(flag == true)
+			playSound(mSound1);
 		else
-			mSoundPool.play(mSound2, 1.0F, 1.0F, 0, 0, 1.0F);   //失敗音
+			playSound(mSound2);
 
 		//全問を解答したら終了
 		if(mSquares.getAnswerCount() == mSquares.getAllCount())
@@ -90,14 +91,20 @@ public class MainActivity extends AppCompatActivity implements InputFragment.OnN
 		dialog.setOnModeStartListener(new ModeFragment.OnModeStartListener() {
 			@Override
 			public void onModeStart(int x, int y) {
-				start(x,y,true);
+				start(true,x,y);
 			}
 		});
 		dialog.show(getSupportFragmentManager(),null);
 
 	}
+	void playSound(int id){
+		mSoundPool.play(id, 1.0F, 1.0F, 0, 0, 1.0F);   //成功音
 
-	void start(int x,int y,boolean reset){
+	}
+	void start(){
+		start(false,0,0);
+	}
+	void start(boolean reset,int x,int y){
 		mActive = true; //ゲーム進行中フラグを立てる
 		//再開かリセットか確認
 		if(reset){
