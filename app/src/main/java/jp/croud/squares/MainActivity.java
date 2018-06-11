@@ -57,9 +57,11 @@ public class MainActivity extends AppCompatActivity implements InputFragment.OnN
 			             .setAudioAttributes(attr)
 			             .setMaxStreams(5)
 			             .build();
-
+		//正解の効果音
 		mSound1 = mSoundPool.load(this, R.raw.sound1, 0);
+		//不正解の効果音
 		mSound2 = mSoundPool.load(this, R.raw.sound2, 0);
+
 		//ゲーム進行中なら再開
 		if(mActive)
 			start();
@@ -71,11 +73,11 @@ public class MainActivity extends AppCompatActivity implements InputFragment.OnN
 			return;
 		//タップされたナンバーを出力し、結果を受け取る
 		boolean flag = mSquares.sendNumber(value);
-		if(flag == true)
+/*		if(flag == true)
 			playSound(mSound1);
 		else
 			playSound(mSound2);
-
+*/
 		//全問を解答したら終了
 		if(mSquares.getAnswerCount() == mSquares.getAllCount())
 		{
